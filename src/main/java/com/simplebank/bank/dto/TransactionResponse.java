@@ -5,6 +5,9 @@ import com.simplebank.bank.model.TransactionType;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * JSON response row for the transaction history table.
+ */
 public record TransactionResponse(
 		String transactionId,
 		TransactionType type,

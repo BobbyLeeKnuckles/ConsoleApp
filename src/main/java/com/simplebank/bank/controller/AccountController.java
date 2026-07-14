@@ -21,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST controller for bank account actions.
+ *
+ * Controllers should stay thin: they receive HTTP requests and delegate business rules to services.
+ */
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
@@ -33,17 +38,20 @@ public class AccountController {
 
 	@GetMapping
 	public List<AccountResponse> findAll() {
+		// Returns a lightweight list for the dashboard account picker.
 		return accountService.findAll();
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public AccountResponse createAccount(@RequestBody CreateAccountRequest request) {
+		// Account creation is public so a brand-new user can register before logging in.
 		return accountService.createAccount(request);
 	}
 
 	@GetMapping("/{id}")
 	public AccountResponse getAccount(@PathVariable String id) {
+		// Path variables come from the URL, for example /api/accounts/123.
 		return accountService.getAccount(id);
 	}
 
@@ -54,16 +62,19 @@ public class AccountController {
 
 	@PostMapping("/{id}/deposit")
 	public AccountResponse deposit(@PathVariable String id, @RequestBody MoneyRequest request) {
+		// The service validates the amount and records the deposit transaction.
 		return accountService.deposit(id, request.amount());
 	}
 
 	@PostMapping("/{id}/withdraw")
 	public AccountResponse withdraw(@PathVariable String id, @RequestBody MoneyRequest request) {
+		// The service enforces the "no overdraft" rule before changing the balance.
 		return accountService.withdraw(id, request.amount());
 	}
 
 	@PostMapping("/{id}/transfer")
 	public AccountResponse transfer(@PathVariable String id, @RequestBody TransferRequest request) {
+		// Transfers update two accounts and create matching transaction records.
 		return accountService.transfer(id, request);
 	}
 
@@ -73,6 +84,7 @@ public class AccountController {
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size
 	) {
+		// Pagination keeps the response small when an account has many transactions.
 		return accountService.getTransactions(id, page, size);
 	}
 }

@@ -5,6 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Central MVC configuration.
+ *
+ * This is where custom web behavior is plugged into Spring MVC.
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -16,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		// Run the auth check before every API request. Static files are left alone.
 		registry.addInterceptor(authInterceptor)
 				.addPathPatterns("/api/**");
 	}

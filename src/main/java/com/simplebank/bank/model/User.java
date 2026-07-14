@@ -7,6 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * MongoDB document for a bank customer.
+ *
+ * One user can own multiple accounts, and login uses the user's email/password hash.
+ */
 @Document("users")
 public class User {
 
@@ -15,9 +20,11 @@ public class User {
 
 	private String name;
 
+	// MongoDB enforces uniqueness so two users cannot register the same email.
 	@Indexed(unique = true)
 	private String email;
 
+	// Store the password hash, never the original plain-text password.
 	private String passwordHash;
 
 	@CreatedDate

@@ -23,6 +23,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Business layer for account operations.
+ *
+ * Controllers call this class, and this class decides what is allowed before saving to MongoDB.
+ */
 @Service
 public class AccountService {
 
@@ -41,6 +46,7 @@ public class AccountService {
 	}
 
 	public List<AccountResponse> findAll() {
+		// Convert database entities into response DTOs so callers do not receive internal model objects.
 		return accountRepository.findAll()
 				.stream()
 				.map(account -> toAccountResponse(account, findUser(account.getUserId())))
@@ -49,13 +55,16 @@ public class AccountService {
 
 	public AccountResponse createAccount(CreateAccountRequest request) {
 		validateCreateAccountRequest(request);
+		// Store emails in one consistent format to support reliable duplicate checks and login.
 		String email = request.email().trim().toLowerCase();
 		String name = request.name().trim();
 		AccountType accountType = parseAccountType(request.accountType());
 		String passwordHash = PasswordHasher.hash(request.password());
+		// If the user already exists, only allow another account when the password matches.
 		User user = userRepository.findByEmail(email)
 				.map(existingUser -> prepareExistingUser(existingUser, passwordHash))
 				.orElseGet(() -> userRepository.save(new User(name, email, passwordHash)));
+		// Accounts reference users by id, which mirrors a foreign-key relationship in SQL.
 		Account account = accountRepository.save(new Account(user.getId(), accountType.name()));
 		return toAccountResponse(account, user);
 	}
@@ -82,6 +91,7 @@ public class AccountService {
 		Account account = findAccount(accountId);
 		account.deposit(amount);
 		Account saved = accountRepository.save(account);
+		// Every money movement should leave an audit trail in the transactions collection.
 		transactionRepository.save(new Transaction(accountId, TransactionType.DEPOSIT, amount));
 		return toAccountResponse(saved, findUser(saved.getUserId()));
 	}
@@ -89,6 +99,7 @@ public class AccountService {
 	public AccountResponse withdraw(String accountId, BigDecimal amount) {
 		validatePositiveAmount(amount);
 		Account account = findAccount(accountId);
+		// Business rule: never let the account balance go below zero.
 		if (account.getBalance().compareTo(amount) < 0) {
 			throw new IllegalArgumentException("Cannot withdraw more than the current balance.");
 		}
@@ -111,10 +122,12 @@ public class AccountService {
 		if (sender.getBalance().compareTo(request.amount()) < 0) {
 			throw new IllegalArgumentException("Cannot transfer more than the current balance.");
 		}
+		// A transfer is just a withdrawal from one account and a deposit into another account.
 		sender.withdraw(request.amount());
 		receiver.deposit(request.amount());
 		Account savedSender = accountRepository.save(sender);
 		accountRepository.save(receiver);
+		// Store both sides so each account has an accurate history.
 		transactionRepository.save(new Transaction(senderAccountId, TransactionType.TRANSFER_OUT, request.amount()));
 		transactionRepository.save(new Transaction(receiver.getId(), TransactionType.TRANSFER_IN, request.amount()));
 		return toAccountResponse(savedSender, findUser(savedSender.getUserId()));
@@ -135,6 +148,7 @@ public class AccountService {
 
 	public Page<TransactionResponse> getTransactions(String accountId, int page, int size) {
 		findAccount(accountId);
+		// Clamp the requested page and size so a client cannot request an unreasonable response.
 		int safePage = Math.max(page, 0);
 		int safeSize = Math.min(Math.max(size, 1), 25);
 		return transactionRepository.findByAccountId(
@@ -150,6 +164,7 @@ public class AccountService {
 	}
 
 	private Account findAccount(String accountId) {
+		// Helper methods keep "not found" behavior consistent across all service methods.
 		return accountRepository.findById(accountId)
 				.orElseThrow(() -> new NoSuchElementException("Account not found: " + accountId));
 	}
@@ -167,6 +182,7 @@ public class AccountService {
 
 	private User prepareExistingUser(User user, String passwordHash) {
 		if (user.getPasswordHash() == null) {
+			// Supports older sample users that may have been created before login was added.
 			user.updatePasswordHash(passwordHash);
 			return userRepository.save(user);
 		}
@@ -177,6 +193,7 @@ public class AccountService {
 	}
 
 	private void validateCreateAccountRequest(CreateAccountRequest request) {
+		// Validate at the service layer so both Postman and the browser UI get the same rules.
 		if (request == null) {
 			throw new IllegalArgumentException("Request body is required.");
 		}
@@ -199,6 +216,7 @@ public class AccountService {
 			throw new IllegalArgumentException("Account type cannot be empty.");
 		}
 		String normalized = value.trim().toUpperCase();
+		// Accept the common student typo while still storing the enum's proper value.
 		if (normalized.equals("CHECKINGS")) {
 			normalized = "CHECKING";
 		}
@@ -210,6 +228,7 @@ public class AccountService {
 	}
 
 	private AccountResponse toAccountResponse(Account account, User user) {
+		// Join account + user data into the shape expected by the REST API and frontend.
 		return new AccountResponse(
 				account.getId(),
 				user.getId(),

@@ -8,6 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * MongoDB document for one account activity record.
+ *
+ * Deposits, withdrawals, and transfers are saved here so the user can see account history.
+ */
 @Document("transactions")
 @CompoundIndex(name = "account_created_idx", def = "{'accountId': 1, 'createdAt': -1}")
 public class Transaction {

@@ -7,6 +7,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
+/**
+ * Data-access layer for transactions.
+ *
+ * The custom query methods support both full history and paginated history views.
+ */
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
 	List<Transaction> findByAccountIdOrderByCreatedAtDesc(String accountId);
 

@@ -1,12 +1,14 @@
 const API_BASE = "/api/accounts";
 const AUTH_BASE = "/api/auth";
 
+// Browser-only state. The selected account drives the detail panel, actions, and transaction table.
 let selectedAccount = null;
 let authToken = sessionStorage.getItem("authToken");
 let authUser = JSON.parse(sessionStorage.getItem("authUser") || "null");
 let transactionPage = 0;
 let totalTransactionPages = 1;
 
+// Cache DOM lookups once so event handlers do not repeatedly search the page.
 const elements = {
 	loginForm: document.getElementById("loginForm"),
 	createAccountForm: document.getElementById("createAccountForm"),
@@ -29,9 +31,11 @@ const elements = {
 	toast: document.getElementById("toast")
 };
 
+// Shared fetch wrapper for protected account APIs.
 async function request(base, path, options = {}) {
 	const headers = {
 		"Content-Type": "application/json",
+		// After login, every protected API call carries this custom auth header.
 		...(authToken ? { "X-Auth-Token": authToken } : {}),
 		...(options.headers || {})
 	};
@@ -44,6 +48,7 @@ async function request(base, path, options = {}) {
 		let message = `Request failed with status ${response.status}.`;
 		try {
 			const errorBody = await response.json();
+			// Backend errors use a common JSON shape with a readable message field.
 			message = errorBody.message || errorBody.error || message;
 		} catch {
 			// Keep the generic message when the response is not JSON.
@@ -58,6 +63,7 @@ async function accountRequest(path, options = {}) {
 	return request(API_BASE, path, options);
 }
 
+// Auth requests are public, so they do not include X-Auth-Token.
 async function authRequest(path, options = {}) {
 	const response = await fetch(`${AUTH_BASE}${path}`, {
 		headers: {
@@ -82,6 +88,7 @@ async function authRequest(path, options = {}) {
 }
 
 function money(value) {
+	// Keep money formatting in one place so balances and transaction amounts match.
 	return Number(value || 0).toLocaleString(undefined, {
 		style: "currency",
 		currency: "USD"
@@ -93,6 +100,7 @@ function dateTime(value) {
 }
 
 function showToast(message, isError = false) {
+	// Toasts give the user quick feedback without replacing the current screen.
 	elements.toast.textContent = message;
 	elements.toast.classList.toggle("error", isError);
 	elements.toast.classList.add("visible");
@@ -105,6 +113,7 @@ function setMessage(element, message, type = "") {
 }
 
 function updateLoginStatus() {
+	// sessionStorage lets the login survive a page refresh in the same browser tab.
 	if (authUser) {
 		elements.loginStatus.textContent = `Logged in: ${authUser.name}`;
 		return;
@@ -113,6 +122,7 @@ function updateLoginStatus() {
 }
 
 function renderAccount(account) {
+	// This function is the single source of truth for the account detail panel.
 	selectedAccount = account;
 	elements.accountId.value = account.accountId;
 	elements.accountDetails.classList.remove("empty-state");
@@ -152,6 +162,7 @@ function renderAccounts(accounts) {
 	}
 
 	elements.accountsList.className = "accounts-list";
+	// Each account row stores its account id in data-id so the click handler can load it.
 	elements.accountsList.innerHTML = accounts.map(account => `
 		<button class="account-row" type="button" data-id="${account.accountId}">
 			<strong>${account.userName}</strong>
@@ -182,6 +193,7 @@ function renderTransactions(transactions) {
 }
 
 function renderTransactionPage(page) {
+	// Spring returns a Page object with content, page number, and total page count.
 	totalTransactionPages = page.totalPages || 1;
 	transactionPage = page.number || 0;
 	renderTransactions(page.content || []);
@@ -191,11 +203,13 @@ function renderTransactionPage(page) {
 }
 
 async function loadAccounts() {
+	// Refreshes the account picker after create, deposit, withdraw, rename, or transfer.
 	const accounts = await accountRequest("");
 	renderAccounts(accounts);
 }
 
 async function loadAccount(accountId) {
+	// Loading one account also refreshes its transaction history.
 	const account = await accountRequest(`/${encodeURIComponent(accountId)}`);
 	renderAccount(account);
 	await loadTransactions(0);
@@ -221,6 +235,7 @@ elements.loginForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	setMessage(elements.loginMessage, "");
 	try {
+		// Login returns the token used by later protected account requests.
 		const result = await authRequest("/login", {
 			method: "POST",
 			body: JSON.stringify({
@@ -245,6 +260,7 @@ elements.loginForm.addEventListener("submit", async event => {
 elements.createAccountForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	setMessage(elements.createMessage, "");
+	// The request shape matches CreateAccountRequest on the Java side.
 	const body = {
 		name: document.getElementById("name").value,
 		email: document.getElementById("email").value,
@@ -253,6 +269,7 @@ elements.createAccountForm.addEventListener("submit", async event => {
 	};
 
 	try {
+		// Account creation is public, then the UI immediately logs the new user in.
 		const account = await accountRequest("", {
 			method: "POST",
 			body: JSON.stringify(body)
@@ -281,6 +298,7 @@ elements.createAccountForm.addEventListener("submit", async event => {
 elements.lookupForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	try {
+		// Manual lookup is useful in Postman-style testing and classroom demos.
 		await loadAccount(elements.accountId.value.trim());
 		showToast("Account loaded.");
 	} catch (error) {
@@ -292,6 +310,7 @@ elements.depositForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	try {
 		const accountId = currentAccountId();
+		// The backend validates positive amounts and creates the transaction record.
 		const account = await accountRequest(`/${encodeURIComponent(accountId)}/deposit`, {
 			method: "POST",
 			body: JSON.stringify({ amount: document.getElementById("depositAmount").value })
@@ -310,6 +329,7 @@ elements.withdrawForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	try {
 		const accountId = currentAccountId();
+		// If the withdrawal is too large, the backend returns an error message.
 		const account = await accountRequest(`/${encodeURIComponent(accountId)}/withdraw`, {
 			method: "POST",
 			body: JSON.stringify({ amount: document.getElementById("withdrawAmount").value })
@@ -345,6 +365,7 @@ elements.transferForm.addEventListener("submit", async event => {
 	event.preventDefault();
 	try {
 		const accountId = currentAccountId();
+		// TransferRequest needs the receiving account id and the amount to move.
 		const account = await accountRequest(`/${encodeURIComponent(accountId)}/transfer`, {
 			method: "POST",
 			body: JSON.stringify({
@@ -363,6 +384,7 @@ elements.transferForm.addEventListener("submit", async event => {
 });
 
 elements.accountsList.addEventListener("click", async event => {
+	// Event delegation lets one listener handle clicks for every account row.
 	const button = event.target.closest("[data-id]");
 	if (!button) {
 		return;
@@ -394,5 +416,6 @@ elements.nextTransactions.addEventListener("click", () => {
 
 updateLoginStatus();
 if (authToken) {
+	// On page refresh, try to restore the account list if the stored token is still valid.
 	loadAccounts().catch(error => showToast(error.message, true));
 }

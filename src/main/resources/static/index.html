@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+	<!-- Top-level app header. The login status is updated by app.js after login. -->
 	<header class="topbar">
 		<div>
 			<p class="eyebrow">Simple Bank</p>
@@ -19,6 +20,7 @@
 	</header>
 
 	<main class="app-shell">
+		<!-- Public login form. Successful login stores the token in sessionStorage. -->
 		<section class="panel">
 			<div class="panel-header">
 				<h2>Login</h2>
@@ -38,6 +40,7 @@
 			</form>
 		</section>
 
+		<!-- Public registration flow. The backend creates both a user and an account. -->
 		<section class="panel">
 			<div class="panel-header">
 				<h2>Create Account</h2>
@@ -68,6 +71,7 @@
 			</form>
 		</section>
 
+		<!-- Account lookup and detail display. app.js fills accountDetails after loading an account. -->
 		<section class="panel">
 			<div class="panel-header">
 				<h2>View Account</h2>
@@ -83,6 +87,7 @@
 			</div>
 		</section>
 
+		<!-- Protected account actions. Each form calls a matching REST endpoint. -->
 		<section class="panel actions-panel">
 			<div class="panel-header">
 				<h2>Actions</h2>
@@ -124,6 +129,7 @@
 			</div>
 		</section>
 
+		<!-- Account picker populated from GET /api/accounts. -->
 		<section class="panel accounts-panel">
 			<div class="panel-header">
 				<h2>Accounts</h2>
@@ -132,6 +138,7 @@
 			<div id="accountsList" class="accounts-list empty-state">No accounts loaded.</div>
 		</section>
 
+		<!-- Paginated transaction table populated from GET /api/accounts/{id}/transactions. -->
 		<section class="panel history-panel">
 			<div class="panel-header">
 				<h2>Transaction History</h2>

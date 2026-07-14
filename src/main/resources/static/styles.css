@@ -1,4 +1,5 @@
 :root {
+	/* Design tokens keep colors and shadows consistent across the UI. */
 	--bg: #f4f6f8;
 	--panel: #ffffff;
 	--text: #172026;
@@ -22,6 +23,7 @@ body {
 }
 
 .topbar {
+	/* Header uses flex so status/actions stay aligned with the title on desktop. */
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -74,6 +76,7 @@ h2 {
 }
 
 .app-shell {
+	/* Main page layout: two columns on desktop, one column on smaller screens. */
 	display: grid;
 	grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
 	gap: 18px;
@@ -91,6 +94,7 @@ h2 {
 
 .actions-panel,
 .history-panel {
+	/* These wider panels need the full row because they contain several controls/table columns. */
 	grid-column: 1 / -1;
 }
 
@@ -106,6 +110,7 @@ h2 {
 }
 
 .action-grid {
+	/* Four action forms sit side by side until the mobile media query stacks them. */
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -162,6 +167,7 @@ button:disabled {
 }
 
 .account-details {
+	/* Detail cards use a small grid so labels and values stay readable. */
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 10px;
@@ -211,6 +217,7 @@ button:disabled {
 }
 
 .accounts-list {
+	/* auto-fit lets the account cards fill available space without fixed breakpoints. */
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 10px;
@@ -239,6 +246,7 @@ button:disabled {
 }
 
 .table-wrap {
+	/* Keeps the transaction table usable on narrow screens. */
 	overflow-x: auto;
 	margin-top: 18px;
 }
@@ -264,6 +272,7 @@ th {
 }
 
 .toast {
+	/* Toast starts hidden and slides in when app.js adds the visible class. */
 	position: fixed;
 	right: 18px;
 	bottom: 18px;
@@ -299,6 +308,7 @@ th {
 }
 
 @media (max-width: 780px) {
+	/* Mobile layout stacks the header, forms, detail grid, and action grid vertically. */
 	.topbar {
 		align-items: flex-start;
 		flex-direction: column;

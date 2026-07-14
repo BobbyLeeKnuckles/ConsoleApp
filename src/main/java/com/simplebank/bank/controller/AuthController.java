@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Authentication API.
+ *
+ * Login is separated from account actions so clients can get a token before calling protected endpoints.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -20,6 +25,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public LoginResponse login(@RequestBody LoginRequest request) {
+		// Returns an in-memory token that the frontend sends back as X-Auth-Token.
 		return authService.login(request);
 	}
 }
