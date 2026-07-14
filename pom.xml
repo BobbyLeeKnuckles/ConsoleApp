@@ -8,11 +8,11 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>com.simplebank</groupId>
+	<artifactId>simple-bank-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>Simple Bank App</name>
+	<description>Simple banking REST API and UI</description>
 	<url/>
 	<licenses>
 		<license/>
