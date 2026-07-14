@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Simple Bank</title>
+	<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+	<header class="topbar">
+		<div>
+			<p class="eyebrow">Simple Bank</p>
+			<h1>Account Console</h1>
+		</div>
+		<div class="topbar-actions">
+			<span id="loginStatus" class="login-status">Not logged in</span>
+			<button id="refreshAccounts" class="secondary-button" type="button">Refresh</button>
+		</div>
+	</header>
+
+	<main class="app-shell">
+		<section class="panel">
+			<div class="panel-header">
+				<h2>Login</h2>
+				<p>Sign in to view and manage accounts.</p>
+			</div>
+			<form id="loginForm" class="form-grid">
+				<label>
+					Email
+					<input id="loginEmail" type="email" autocomplete="email" required>
+				</label>
+				<label>
+					Password
+					<input id="loginPassword" type="password" autocomplete="current-password" required>
+				</label>
+				<p id="loginMessage" class="form-message"></p>
+				<button type="submit">Login</button>
+			</form>
+		</section>
+
+		<section class="panel">
+			<div class="panel-header">
+				<h2>Create Account</h2>
+				<p>Open a checking or savings account.</p>
+			</div>
+			<form id="createAccountForm" class="form-grid">
+				<label>
+					Name
+					<input id="name" name="name" autocomplete="name" required>
+				</label>
+				<label>
+					Email
+					<input id="email" name="email" type="email" autocomplete="email" required>
+				</label>
+				<label>
+					Password
+					<input id="password" name="password" type="password" autocomplete="new-password" minlength="6" required>
+				</label>
+				<label>
+					Account Type
+					<select id="accountType" name="accountType" required>
+						<option value="SAVINGS">Savings</option>
+						<option value="CHECKING">Checking</option>
+					</select>
+				</label>
+				<p id="createMessage" class="form-message"></p>
+				<button type="submit">Create Account</button>
+			</form>
+		</section>
+
+		<section class="panel">
+			<div class="panel-header">
+				<h2>View Account</h2>
+				<p>Load an account by ID or select one from the list.</p>
+			</div>
+			<form id="lookupForm" class="lookup-row">
+				<input id="accountId" name="accountId" placeholder="Account ID" required>
+				<button type="submit">Load</button>
+			</form>
+
+			<div id="accountDetails" class="account-details empty-state">
+				Select or create an account.
+			</div>
+		</section>
+
+		<section class="panel actions-panel">
+			<div class="panel-header">
+				<h2>Actions</h2>
+				<p>Deposit, withdraw, or rename the account holder.</p>
+			</div>
+			<div class="action-grid">
+				<form id="depositForm">
+					<label>
+						Deposit Amount
+						<input id="depositAmount" type="number" min="0.01" step="0.01" required>
+					</label>
+					<button type="submit">Deposit</button>
+				</form>
+				<form id="withdrawForm">
+					<label>
+						Withdraw Amount
+						<input id="withdrawAmount" type="number" min="0.01" step="0.01" required>
+					</label>
+					<button type="submit">Withdraw</button>
+				</form>
+				<form id="renameForm">
+					<label>
+						New Name
+						<input id="newName" required>
+					</label>
+					<button type="submit">Update Name</button>
+				</form>
+				<form id="transferForm">
+					<label>
+						Receiver Account ID
+						<input id="receiverAccountId" required>
+					</label>
+					<label>
+						Transfer Amount
+						<input id="transferAmount" type="number" min="0.01" step="0.01" required>
+					</label>
+					<button type="submit">Transfer</button>
+				</form>
+			</div>
+		</section>
+
+		<section class="panel accounts-panel">
+			<div class="panel-header">
+				<h2>Accounts</h2>
+				<p>Choose an account to inspect.</p>
+			</div>
+			<div id="accountsList" class="accounts-list empty-state">No accounts loaded.</div>
+		</section>
+
+		<section class="panel history-panel">
+			<div class="panel-header">
+				<h2>Transaction History</h2>
+				<p>Latest deposits and withdrawals.</p>
+			</div>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>Transaction ID</th>
+							<th>Type</th>
+							<th>Amount</th>
+							<th>Date</th>
+						</tr>
+					</thead>
+					<tbody id="transactionsBody">
+						<tr>
+							<td colspan="4" class="empty-cell">Select an account to view transactions.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="pagination-row">
+				<button id="prevTransactions" class="secondary-button" type="button">Previous</button>
+				<span id="transactionPageLabel">Page 1</span>
+				<button id="nextTransactions" class="secondary-button" type="button">Next</button>
+			</div>
+		</section>
+	</main>
+
+	<div id="toast" class="toast" role="status" aria-live="polite"></div>
+	<script src="/app.js"></script>
+</body>
+</html>
