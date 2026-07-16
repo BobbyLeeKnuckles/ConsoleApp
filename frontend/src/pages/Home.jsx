@@ -1,14 +1,18 @@
 import {
+  Activity,
   ArrowDownCircle,
   ArrowUpCircle,
   CreditCard,
   History,
+  Landmark,
   LogIn,
+  LogOut,
   Pencil,
   RefreshCw,
   Search,
   Send,
   ShieldCheck,
+  Sparkles,
   UserPlus,
   Wallet
 } from "lucide-react";
@@ -140,6 +144,10 @@ export default function Home() {
   const [createMessage, setCreateMessage] = useState("");
   const [toast, setToast] = useState({ message: "", error: false });
 
+  // Overview values are derived from loaded data, so the summary follows every account change automatically.
+  const totalBalance = accounts.reduce((sum, account) => sum + Number(account.balance || 0), 0);
+  const recentActivityCount = transactionPage.content?.length || 0;
+
   // Shows a short-lived message in the bottom corner of the screen.
   function showToast(message, error = false) {
     setToast({ message, error });
@@ -152,6 +160,20 @@ export default function Home() {
     setAuthUser(login);
     sessionStorage.setItem("authToken", login.token);
     sessionStorage.setItem("authUser", JSON.stringify(login));
+  }
+
+  // Clearing the browser session returns the dashboard to its safe interactive demo state.
+  function handleLogout() {
+    setAuthToken(null);
+    setAuthUser(null);
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("authUser");
+    setAccounts(DEMO_ACCOUNTS);
+    setSelectedAccount(DEMO_ACCOUNTS[0]);
+    setAccountIdInput(DEMO_ACCOUNTS[0].accountId);
+    setTransactionPage(DEMO_TRANSACTION_PAGE);
+    setLoginMessage("");
+    showToast("Signed out. Demo mode is ready.");
   }
 
   // Loads the account list used by the Accounts panel.
@@ -448,21 +470,60 @@ export default function Home() {
 
   return (
     <>
-      <section className="dashboard-toolbar">
-        <div>
-          <p className="eyebrow">Account workspace</p>
-          <h1>Bank Command Center</h1>
+      <section className="dashboard-hero">
+        <div className="hero-copy">
+          <span className="hero-kicker">
+            <Sparkles size={15} aria-hidden="true" />
+            Simple banking, serious security
+          </span>
+          <h1>Your money, clearly organized.</h1>
+          <p>
+            Explore the demo instantly or sign in to manage live accounts backed by Spring Boot and MongoDB.
+          </p>
         </div>
         <div className="topbar-actions">
-          <span className="login-status">
+          <span className={`login-status ${authUser ? "live" : "demo"}`.trim()}>
             <ShieldCheck size={16} aria-hidden="true" />
-            {authUser ? `Signed in: ${authUser.name}` : "Guest session"}
+            {authUser ? `Live session · ${authUser.name}` : "Interactive demo mode"}
           </span>
           <button className="secondary-button icon-button" type="button" onClick={handleRefresh}>
             <RefreshCw size={17} aria-hidden="true" />
             Refresh
           </button>
+          {authUser ? (
+            <button className="ghost-button icon-button" type="button" onClick={handleLogout}>
+              <LogOut size={17} aria-hidden="true" />
+              Sign Out
+            </button>
+          ) : null}
         </div>
+      </section>
+
+      <section className="overview-grid" aria-label="Account overview">
+        <article className="overview-card overview-card-featured">
+          <span className="overview-icon" aria-hidden="true"><Wallet size={19} /></span>
+          <div>
+            <span>Total balance</span>
+            <strong>{formatMoney(totalBalance)}</strong>
+          </div>
+          <small>{authUser ? "Across your loaded accounts" : "Preview portfolio"}</small>
+        </article>
+        <article className="overview-card">
+          <span className="overview-icon" aria-hidden="true"><Landmark size={19} /></span>
+          <div>
+            <span>Accounts</span>
+            <strong>{accounts.length}</strong>
+          </div>
+          <small>Checking and savings</small>
+        </article>
+        <article className="overview-card">
+          <span className="overview-icon" aria-hidden="true"><Activity size={19} /></span>
+          <div>
+            <span>Recent activity</span>
+            <strong>{recentActivityCount}</strong>
+          </div>
+          <small>Transactions on this page</small>
+        </article>
       </section>
 
       <main className="app-shell">
@@ -518,6 +579,7 @@ export default function Home() {
             <input
               value={accountIdInput}
               onChange={event => setAccountIdInput(event.target.value)}
+              aria-label="Account ID"
               placeholder="Account ID"
               required
             />
@@ -625,7 +687,7 @@ export default function Home() {
                   transactionPage.content.map(transaction => (
                     <tr key={transaction.transactionId}>
                       <td>{transaction.transactionId}</td>
-                      <td>{transaction.type}</td>
+                      <td><span className={`transaction-badge ${transaction.type.toLowerCase()}`}>{transaction.type}</span></td>
                       <td>{formatMoney(transaction.amount)}</td>
                       <td>{formatDate(transaction.date)}</td>
                     </tr>

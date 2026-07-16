@@ -1,7 +1,11 @@
 // Central place for REST calls to the Spring Boot backend.
-const ACCOUNT_BASE = "/api/accounts";
-const AUTH_BASE = "/api/auth";
-const USER_BASE = "/admin/users";
+// An empty base keeps the bundled Render build same-origin, while VITE_API_BASE_URL
+// lets a future Amplify frontend call the same API without rewriting every endpoint.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const ACCOUNT_BASE = `${API_BASE}/api/accounts`;
+const AUTH_BASE = `${API_BASE}/api/auth`;
+const ADMIN_BASE = `${API_BASE}/admin`;
+const USER_BASE = `${ADMIN_BASE}/users`;
 
 function buildHeaders(token) {
   // All JSON API calls use the same content type, and logged-in calls include the JWT.
@@ -102,6 +106,11 @@ const BankService = {
   getUsers(token) {
     // Admin page uses this to call UserController without exposing password hashes.
     return request(USER_BASE, {}, token);
+  },
+
+  verifyAdmin(token) {
+    // This is the instructor-required ROLE_ADMIN endpoint and proves the Bearer token is authorized.
+    return request(ADMIN_BASE, { method: "POST" }, token);
   }
 };
 
