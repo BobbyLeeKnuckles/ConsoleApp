@@ -14,6 +14,7 @@ import java.time.Instant;
  * Deposits, withdrawals, and transfers are saved here so the user can see account history.
  */
 @Document("transactions")
+// Speeds up "show newest transactions for this account" queries.
 @CompoundIndex(name = "account_created_idx", def = "{'accountId': 1, 'createdAt': -1}")
 public class Transaction {
 

@@ -11,4 +11,5 @@ public record ErrorResponse(
 		String error,
 		String message
 ) {
+	// Keeping errors in one DTO makes Postman/browser responses predictable.
 }

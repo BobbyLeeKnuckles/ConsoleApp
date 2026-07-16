@@ -1,0 +1,10 @@
+html,
+body,
+#root {
+  /* Let the React app fill the full browser height. */
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}

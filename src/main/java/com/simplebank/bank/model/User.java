@@ -65,10 +65,12 @@ public class User {
 	}
 
 	public void updateName(String name) {
+		// Keep mutation methods small so the service controls validation before changing state.
 		this.name = name;
 	}
 
 	public void updatePasswordHash(String passwordHash) {
+		// Used when upgrading older sample users that did not originally have login passwords.
 		this.passwordHash = passwordHash;
 	}
 }

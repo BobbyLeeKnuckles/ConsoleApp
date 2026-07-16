@@ -34,15 +34,18 @@ public class AccountService {
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
+	private final AccountNumberService accountNumberService;
 
 	public AccountService(
 			UserRepository userRepository,
 			AccountRepository accountRepository,
-			TransactionRepository transactionRepository
+			TransactionRepository transactionRepository,
+			AccountNumberService accountNumberService
 	) {
 		this.userRepository = userRepository;
 		this.accountRepository = accountRepository;
 		this.transactionRepository = transactionRepository;
+		this.accountNumberService = accountNumberService;
 	}
 
 	public List<AccountResponse> findAll() {
@@ -65,7 +68,8 @@ public class AccountService {
 				.map(existingUser -> prepareExistingUser(existingUser, passwordHash))
 				.orElseGet(() -> userRepository.save(new User(name, email, passwordHash)));
 		// Accounts reference users by id, which mirrors a foreign-key relationship in SQL.
-		Account account = accountRepository.save(new Account(user.getId(), accountType.name()));
+		String accountId = accountNumberService.nextAccountId();
+		Account account = accountRepository.save(new Account(accountId, user.getId(), accountType.name()));
 		return toAccountResponse(account, user);
 	}
 

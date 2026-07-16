@@ -13,7 +13,9 @@ import java.util.List;
  * The custom query methods support both full history and paginated history views.
  */
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
+	// Non-paginated history is kept for simple service calls and quick checks.
 	List<Transaction> findByAccountIdOrderByCreatedAtDesc(String accountId);
 
+	// Paginated history is what the React UI uses for the transaction table.
 	Page<Transaction> findByAccountId(String accountId, Pageable pageable);
 }

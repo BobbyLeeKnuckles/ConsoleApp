@@ -15,4 +15,5 @@ public record AccountResponse(
 		BigDecimal balance,
 		Instant createdAt
 ) {
+	// Records automatically provide the constructor and getters used by Spring's JSON serializer.
 }

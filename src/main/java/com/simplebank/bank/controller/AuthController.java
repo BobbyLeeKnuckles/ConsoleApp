@@ -25,7 +25,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public LoginResponse login(@RequestBody LoginRequest request) {
-		// Returns an in-memory token that the frontend sends back as X-Auth-Token.
+		// Returns a signed JWT that the frontend sends back as an Authorization Bearer token.
 		return authService.login(request);
 	}
 }

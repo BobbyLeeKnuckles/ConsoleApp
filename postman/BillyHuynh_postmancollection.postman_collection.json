@@ -1,6 +1,6 @@
 ﻿{
     "info":  {
-                 "name":  "Simple Bank API",
+                 "name":  "BillyHuynh_postmancollection",
                  "_postman_id":  "4f9d5c9e-4a6e-4d93-a2ab-simplebankapp",
                  "description":  "Postman collection for the Simple Bank Spring Boot REST API.",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"

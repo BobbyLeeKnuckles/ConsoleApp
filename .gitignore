@@ -30,5 +30,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### React frontend ###
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+vite-dev*.log
+
 ### VS Code ###
 .vscode/

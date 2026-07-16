@@ -26,8 +26,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 		if (request.getMethod().equals("OPTIONS") || isPublicEndpoint(request)) {
 			return true;
 		}
-		// Protected requests must include the token returned from /api/auth/login.
-		String token = request.getHeader("X-Auth-Token");
+		// Protected requests must include the JWT returned from /api/auth/login.
+		String token = resolveToken(request);
 		if (authService.isValidToken(token)) {
 			return true;
 		}
@@ -36,6 +36,15 @@ public class AuthInterceptor implements HandlerInterceptor {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Login is required.\"}");
 		return false;
+	}
+
+	private String resolveToken(HttpServletRequest request) {
+		String authorization = request.getHeader("Authorization");
+		if (authorization != null && authorization.startsWith("Bearer ")) {
+			return authorization.substring("Bearer ".length()).trim();
+		}
+		// Keep X-Auth-Token support so older Postman collections still work during the transition.
+		return request.getHeader("X-Auth-Token");
 	}
 
 	private boolean isPublicEndpoint(HttpServletRequest request) {

@@ -1,0 +1,133 @@
+.site-header {
+  /* Header uses the same max width as the dashboard so navigation lines up with content. */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: var(--accent-warm);
+  color: var(--brand-mark-text);
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: var(--shadow);
+}
+
+.brand p {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.brand h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.header-actions {
+  /* Navigation and theme controls stay together on the right side of the header. */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-nav ul {
+  /* The nav is a real list for accessibility, styled horizontally for desktop. */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.header-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.header-nav a:hover,
+.header-nav a.active {
+  background: var(--nav-hover);
+  color: var(--accent);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+  transform: none;
+}
+
+@media (max-width: 780px) {
+  /* On phones, stack the menu so each link has enough tap space. */
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-nav,
+  .header-nav ul,
+  .header-nav li,
+  .header-nav a {
+    width: 100%;
+  }
+
+  .header-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-nav ul {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .theme-toggle {
+    width: 100%;
+  }
+}

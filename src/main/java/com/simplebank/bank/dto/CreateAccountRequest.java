@@ -9,4 +9,5 @@ public record CreateAccountRequest(
 		String password,
 		String accountType
 ) {
+	// Spring fills this record from the POST /api/accounts JSON body.
 }

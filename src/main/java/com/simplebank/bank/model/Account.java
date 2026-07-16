@@ -34,6 +34,13 @@ public class Account {
 		this.accountType = accountType;
 	}
 
+	public Account(String id, String userId, String accountType) {
+		// Custom ids make account numbers readable instead of exposing Mongo ObjectIds.
+		this.id = id;
+		this.userId = userId;
+		this.accountType = accountType;
+	}
+
 	public String getId() {
 		return id;
 	}

@@ -1,0 +1,564 @@
+/* App-level styles for the Simple Bank frontend. */
+:root {
+  /* Theme tokens: change these first if you want to rebrand the frontend later. */
+  color-scheme: light;
+  --bg: #eef3f4;
+  --panel: #ffffff;
+  --surface: #fbfdfe;
+  --surface-soft: #f8fbfb;
+  --text: #182126;
+  --muted: #667684;
+  --line: #d7e2e6;
+  --accent: #087c78;
+  --accent-dark: #075f5c;
+  --accent-soft: #e8f5f3;
+  --accent-warm: #d99a2b;
+  --brand: #102635;
+  --brand-mark-text: #102635;
+  --ink: #263642;
+  --danger: #b42318;
+  --success: #137333;
+  --body-start: #f7fafb;
+  --body-glow: rgba(8, 124, 120, 0.08);
+  --field-bg: #ffffff;
+  --field-border: #c6d1db;
+  --label: #2d3a44;
+  --button-disabled: #9aa8b4;
+  --toast-bg: #172026;
+  --nav-hover: rgba(8, 124, 120, 0.12);
+  --shadow: 0 18px 42px rgba(16, 38, 53, 0.1);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d151a;
+  --panel: #142128;
+  --surface: #101b22;
+  --surface-soft: #0f181e;
+  --text: #eef6f6;
+  --muted: #a6b8c2;
+  --line: #2d424d;
+  --accent: #3bc0b5;
+  --accent-dark: #238b86;
+  --accent-soft: #17363a;
+  --accent-warm: #efb64d;
+  --brand: #f3f8f8;
+  --brand-mark-text: #091218;
+  --ink: #2f4654;
+  --danger: #ff756b;
+  --success: #65d984;
+  --body-start: #091116;
+  --body-glow: rgba(59, 192, 181, 0.13);
+  --field-bg: #0b151b;
+  --field-border: #38505b;
+  --label: #d8e3e8;
+  --button-disabled: #50636d;
+  --toast-bg: #071014;
+  --nav-hover: rgba(59, 192, 181, 0.16);
+  --shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(135deg, var(--body-glow), transparent 34%),
+    linear-gradient(180deg, var(--body-start) 0%, var(--bg) 100%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.topbar-actions {
+  /* Shared action row used by the dashboard toolbar. */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.login-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: 30px;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 24px auto 0;
+  padding: 18px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.dashboard-toolbar .login-status {
+  color: var(--muted);
+}
+
+.dashboard-toolbar h1 {
+  font-size: 26px;
+}
+
+h2 {
+  margin-bottom: 6px;
+  font-size: 19px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.panel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.panel-header p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.app-shell {
+  /* Dashboard layout: two columns on desktop, single column on phones. */
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 18px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 18px auto 42px;
+}
+
+.panel {
+  /* Panels are the repeated white sections used throughout the dashboard. */
+  position: relative;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+}
+
+.actions-panel,
+.accounts-panel,
+.history-panel {
+  grid-column: 1 / -1;
+}
+
+.form-grid,
+.action-grid {
+  /* Form layouts keep labels, inputs, and buttons evenly spaced. */
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.action-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+}
+
+.action-grid form {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--label);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text);
+  background: var(--field-bg);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(8, 124, 120, 0.16);
+  outline: 0;
+}
+
+button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+button:hover {
+  background: var(--accent-dark);
+  box-shadow: 0 8px 18px rgba(8, 124, 120, 0.2);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background: var(--button-disabled);
+  cursor: not-allowed;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.secondary-button {
+  background: var(--ink);
+}
+
+.lookup-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.account-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.detail-item {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.detail-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.empty-state,
+.empty-cell,
+.form-message {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.padded {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.form-message {
+  margin: 0;
+  min-height: 18px;
+}
+
+.form-message.error {
+  color: var(--danger);
+}
+
+.form-message.success {
+  color: var(--success);
+}
+
+.accounts-list {
+  /* auto-fit lets account buttons wrap cleanly as the screen width changes. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.account-row {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  text-align: left;
+  color: var(--text);
+}
+
+.account-row:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.account-row strong,
+.account-row span,
+.account-row small {
+  overflow-wrap: anywhere;
+}
+
+.account-row small {
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.toast {
+  /* Fixed toast feedback keeps success/error messages visible after form submissions. */
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  max-width: min(420px, calc(100% - 36px));
+  padding: 13px 15px;
+  border-radius: 8px;
+  background: var(--toast-bg);
+  color: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.toast.error {
+  background: var(--danger);
+}
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.page-shell {
+  /* Non-dashboard pages share a narrower content layout. */
+  width: min(980px, calc(100% - 32px));
+  margin: 24px auto 42px;
+}
+
+.page-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 26px;
+}
+
+.page-panel h2 {
+  font-size: 28px;
+}
+
+.page-panel h3 {
+  margin-bottom: 6px;
+  color: var(--brand);
+}
+
+.page-panel p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.info-grid,
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.info-grid > div,
+.service-grid > article,
+.contact-list {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.service-action {
+  margin-top: 10px;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.admin-login-card,
+.admin-service-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.admin-service-card {
+  align-content: start;
+}
+
+.admin-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-users-table td {
+  overflow-wrap: anywhere;
+}
+
+.contact-list {
+  display: grid;
+  gap: 10px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  /* Mobile: stack everything so long IDs and buttons do not crowd each other. */
+  .dashboard-toolbar {
+    width: 100%;
+  }
+
+  .dashboard-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 16px;
+  }
+
+  .app-shell,
+  .action-grid,
+  .account-details,
+  .admin-layout,
+  .lookup-row {
+    grid-template-columns: 1fr;
+  }
+}

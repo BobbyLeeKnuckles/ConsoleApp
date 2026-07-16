@@ -14,4 +14,5 @@ public record TransactionResponse(
 		BigDecimal amount,
 		Instant date
 ) {
+	// This DTO is intentionally table-shaped for the React transaction history page.
 }

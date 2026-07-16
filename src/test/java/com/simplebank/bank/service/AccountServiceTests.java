@@ -1,6 +1,7 @@
 package com.simplebank.bank.service;
 
 import com.simplebank.bank.dto.AccountResponse;
+import com.simplebank.bank.dto.CreateAccountRequest;
 import com.simplebank.bank.model.Account;
 import com.simplebank.bank.model.Transaction;
 import com.simplebank.bank.model.TransactionType;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -45,19 +47,46 @@ class AccountServiceTests {
 	@Mock
 	private TransactionRepository transactionRepository;
 
+	@Mock
+	private AccountNumberService accountNumberService;
+
 	private AccountService accountService;
 
 	@BeforeEach
 	void setUp() {
 		// Build the service by hand so the test controls each repository dependency.
-		accountService = new AccountService(userRepository, accountRepository, transactionRepository);
+		accountService = new AccountService(userRepository, accountRepository, transactionRepository, accountNumberService);
+	}
+
+	@Test
+	void createAccountUsesReadableSimpleBankAccountNumber() {
+		CreateAccountRequest request = new CreateAccountRequest(
+				"Billy Huynh",
+				"billy@example.com",
+				"password123",
+				"CHECKING"
+		);
+		User savedUser = new User("Billy Huynh", "billy@example.com", "password-hash");
+		ReflectionTestUtils.setField(savedUser, "id", USER_ID);
+
+		when(userRepository.findByEmail("billy@example.com")).thenReturn(Optional.empty());
+		when(userRepository.save(any(User.class))).thenReturn(savedUser);
+		when(accountNumberService.nextAccountId()).thenReturn("SB-1001");
+		when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		AccountResponse response = accountService.createAccount(request);
+
+		assertEquals("SB-1001", response.accountId());
+		ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+		verify(accountRepository).save(accountCaptor.capture());
+		assertEquals("SB-1001", accountCaptor.getValue().getId());
 	}
 
 	@Test
 	void depositAddsMoneyAndRecordsDepositTransaction() {
 		// Arrange: create test objects and tell mocks what to return.
 		Account account = new Account(USER_ID, "SAVINGS");
-		User user = new User("Hoang Huynh", "hoang@example.com", "password-hash");
+		User user = new User("Billy Huynh", "billy@example.com", "password-hash");
 		BigDecimal amount = new BigDecimal("50.00");
 
 		when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));

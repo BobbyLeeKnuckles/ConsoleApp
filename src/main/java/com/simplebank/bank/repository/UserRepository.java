@@ -11,5 +11,6 @@ import java.util.Optional;
  * Spring Data builds the findByEmail query from the method name.
  */
 public interface UserRepository extends MongoRepository<User, String> {
+	// Used by registration to prevent duplicate users and by login to find credentials.
 	Optional<User> findByEmail(String email);
 }
