@@ -121,7 +121,7 @@ export default function Admin() {
               </span>
               <div>
                 <h3>UserController Service</h3>
-                <p>Calls GET /api/users and displays safe user DTOs.</p>
+                <p>Calls GET /admin/users and displays safe user DTOs.</p>
               </div>
             </div>
 

@@ -27,6 +27,9 @@ public class User {
 	// Store the password hash, never the original plain-text password.
 	private String passwordHash;
 
+	// Spring Security converts this value into ROLE_USER or ROLE_ADMIN.
+	private UserRole role = UserRole.USER;
+
 	@CreatedDate
 	private Instant createdAt;
 
@@ -39,9 +42,14 @@ public class User {
 	}
 
 	public User(String name, String email, String passwordHash) {
+		this(name, email, passwordHash, UserRole.USER);
+	}
+
+	public User(String name, String email, String passwordHash, UserRole role) {
 		this.name = name;
 		this.email = email;
 		this.passwordHash = passwordHash;
+		this.role = role == null ? UserRole.USER : role;
 	}
 
 	public String getId() {
@@ -60,6 +68,11 @@ public class User {
 		return passwordHash;
 	}
 
+	public UserRole getRole() {
+		// Existing MongoDB users created before roles were added default to USER.
+		return role == null ? UserRole.USER : role;
+	}
+
 	public Instant getCreatedAt() {
 		return createdAt;
 	}
@@ -72,5 +85,9 @@ public class User {
 	public void updatePasswordHash(String passwordHash) {
 		// Used when upgrading older sample users that did not originally have login passwords.
 		this.passwordHash = passwordHash;
+	}
+
+	public void updateRole(UserRole role) {
+		this.role = role == null ? UserRole.USER : role;
 	}
 }

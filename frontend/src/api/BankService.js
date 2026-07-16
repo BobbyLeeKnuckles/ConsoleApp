@@ -1,7 +1,7 @@
 // Central place for REST calls to the Spring Boot backend.
 const ACCOUNT_BASE = "/api/accounts";
 const AUTH_BASE = "/api/auth";
-const USER_BASE = "/api/users";
+const USER_BASE = "/admin/users";
 
 function buildHeaders(token) {
   // All JSON API calls use the same content type, and logged-in calls include the JWT.

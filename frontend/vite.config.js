@@ -9,7 +9,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // During React development, send API calls to the Spring Boot backend.
-      "/api": "http://localhost:8080"
+      "/api": "http://localhost:8080",
+      "/admin": "http://localhost:8080"
     }
   }
 });

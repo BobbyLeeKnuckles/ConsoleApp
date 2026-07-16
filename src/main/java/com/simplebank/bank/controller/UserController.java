@@ -11,10 +11,10 @@ import java.util.List;
 /**
  * REST controller for admin user actions.
  *
- * The AuthInterceptor protects this endpoint, so callers must send a valid JWT.
+ * SecurityConfiguration requires an authenticated user with ROLE_ADMIN for this endpoint.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/admin/users")
 public class UserController {
 
 	private final UserService userService;

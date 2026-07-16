@@ -1,14 +1,14 @@
 package com.simplebank.bank.security;
 
-import com.simplebank.bank.model.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,18 +24,21 @@ class JwtServiceTests {
 	void createdTokenIsValidBeforeItExpires() {
 		JwtService jwtService = new JwtService(STRONG_SECRET, 30, fixedClock(NOW));
 
-		String token = jwtService.createToken(testUser());
+		UserDetails userDetails = testUser();
+		String token = jwtService.generateToken(userDetails);
 
-		assertTrue(jwtService.isValidToken(token));
+		assertTrue(jwtService.isTokenValid(token, userDetails));
+		assertEquals("billy@example.com", jwtService.extractUsername(token));
 	}
 
 	@Test
 	void createdTokenIsRejectedAfterItExpires() {
 		JwtService issuer = new JwtService(STRONG_SECRET, 1, fixedClock(NOW));
-		String token = issuer.createToken(testUser());
+		UserDetails userDetails = testUser();
+		String token = issuer.generateToken(userDetails);
 		JwtService verifier = new JwtService(STRONG_SECRET, 1, fixedClock(NOW.plusSeconds(120)));
 
-		assertFalse(verifier.isValidToken(token));
+		assertFalse(verifier.isTokenValid(token, userDetails));
 	}
 
 	@Test
@@ -43,11 +46,12 @@ class JwtServiceTests {
 		assertThrows(IllegalStateException.class, () -> new JwtService("too-short", 30, fixedClock(NOW)));
 	}
 
-	private User testUser() {
-		User user = new User("Billy Huynh", "billy@example.com", PasswordHasher.hash("password123"));
-		// Mongo normally fills id after save; the test sets it so the JWT subject is realistic.
-		ReflectionTestUtils.setField(user, "id", "user-1");
-		return user;
+	private UserDetails testUser() {
+		return org.springframework.security.core.userdetails.User
+				.withUsername("billy@example.com")
+				.password(PasswordHasher.hash("password123"))
+				.roles("USER")
+				.build();
 	}
 
 	private Clock fixedClock(Instant instant) {

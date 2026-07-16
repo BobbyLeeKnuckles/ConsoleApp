@@ -1,0 +1,215 @@
+{
+  "info": {
+    "_postman_id": "ca683815-81ac-46ff-b3b8-8fdeef849f37",
+    "name": "Spring JWT Admin API",
+    "description": "Instructor JWT verification for BankApp. Start the API with JWT_SECRET=spring-jwt-postman-test-secret-32-bytes when running the included expired-token request. This is a local test secret only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin"
+    },
+    {
+      "key": "adminPassword",
+      "value": "admin123"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "expiredToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzaW1wbGUtYmFuay1hcHAiLCJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNTc3ODM2ODAwLCJleHAiOjE1Nzc4MzY4NjB9.OkpWqMga5yxUA4vl2kcGMfX9ByzgS3A4bMpS7aXTGmw"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Public endpoint without token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Public endpoint returns 200 without JWT', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().message).to.eql('Public access granted. No token required.');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/public"
+      },
+      "response": []
+    },
+    {
+      "name": "2 - Regular API endpoint without token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Regular API remains public', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/accounts"
+      },
+      "response": []
+    },
+    {
+      "name": "3 - Admin endpoint without token is forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Missing JWT returns 403 Access Forbidden', function () {",
+              "  pm.response.to.have.status(403);",
+              "  pm.expect(pm.response.json().message).to.eql('Access Forbidden.');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/admin"
+      },
+      "response": []
+    },
+    {
+      "name": "4 - Admin endpoint with expired Bearer token is forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expired JWT returns 403 Access Forbidden', function () {",
+              "  pm.response.to.have.status(403);",
+              "  pm.expect(pm.response.json().message).to.eql('Access Forbidden.');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{expiredToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/admin"
+      },
+      "response": []
+    },
+    {
+      "name": "5 - Login as administrator and save JWT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Admin login returns a JWT', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('adminToken', body.token);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "response": []
+    },
+    {
+      "name": "6 - Admin endpoint with Bearer token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('ROLE_ADMIN JWT grants access', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.message).to.eql('Admin access granted.');",
+              "  pm.expect(body.role).to.eql('ROLE_ADMIN');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/admin"
+      },
+      "response": []
+    }
+  ]
+}

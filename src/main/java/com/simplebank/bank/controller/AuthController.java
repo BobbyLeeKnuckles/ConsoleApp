@@ -23,6 +23,9 @@ public class AuthController {
 		this.authService = authService;
 	}
 
+	/**
+	 * Public login endpoint. Successful credentials return the Bearer token used for POST /admin.
+	 */
 	@PostMapping("/login")
 	public LoginResponse login(@RequestBody LoginRequest request) {
 		// Returns a signed JWT that the frontend sends back as an Authorization Bearer token.
