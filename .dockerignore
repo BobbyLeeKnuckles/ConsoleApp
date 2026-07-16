@@ -1,0 +1,10 @@
+.git
+.agents
+.idea
+target
+frontend/node_modules
+frontend/dist
+postman
+Screenshots
+*.log
+*.zip
